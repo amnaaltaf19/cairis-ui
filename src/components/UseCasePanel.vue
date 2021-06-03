@@ -35,6 +35,9 @@ Authors: Shamal Faily
       <b-form-group label="Postconditions" label-class="font-weight-bold text-sm-left" label-for="thePostconditions" >
         <b-form-textarea id="thePostconditions" v-model="postconditions" type="text" :rows=2 :max-rows="4" readonly />
       </b-form-group>
+      <b-form-group label="Cognitve Attributes" label-class="font-weight-bold text-sm-left" label-for="theAttributes" >
+        <b-form-textarea id="theAttributes" v-model="attributes" type="text" :rows=2 :max-rows="4" readonly />
+      </b-form-group>
     </b-container>
   </div>
 </template>
@@ -67,6 +70,9 @@ Authors: Shamal Faily
       },
       postconditions() {
         return this.panelObject != undefined && this.panelObject.theEnvironmentProperties != undefined && this.panelObject.theEnvironmentProperties.length > 0 && this.panelObject.theEnvironmentProperties[0].thePostCond != undefined ? this.panelObject.theEnvironmentProperties.filter(env => env.theEnvironmentName == this.panelParameters.environment)[0].thePostCond : '';
+      },
+      attributes() {
+        return this.panelObject != undefined && this.panelObject.theEnvironmentProperties != undefined && this.panelObject.theEnvironmentProperties.length > 0 && this.panelObject.theEnvironmentProperties[0].theAttribute != undefined ? this.panelObject.theEnvironmentProperties.filter(env => env.theEnvironmentName == this.panelParameters.environment)[0].theAttribute : '';
       },
       steps() {
         return this.panelObject != undefined && this.panelObject.theEnvironmentProperties != undefined && this.panelObject.theEnvironmentProperties.length > 0 && this.panelObject.theEnvironmentProperties[0].theSteps != undefined ? this.panelObject.theEnvironmentProperties.filter(env => env.theEnvironmentName == this.panelParameters.environment)[0].theSteps.map((step,idx) => ({'no' : idx + 1, 'step' : step.theStepText})) : [];

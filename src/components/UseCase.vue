@@ -25,6 +25,7 @@ Authors: Shamal Faily
     <dimension-modal ref="actorDialog" dimension="role" :existing="actorNames" v-on:dimension-modal-update="addUseCaseActor"/> 
     <step-modal v-if="objt.theEnvironmentProperties.length" ref="stepDialog" :usecaseStep="selectedStep" :usecaseActors="actorNames" :environment="environmentName" v-on:step-update="updateStep"/> 
     <exception-modal v-if="objt.theEnvironmentProperties.length" ref="excDialog" :stepException="selectedException" :usecase="objt.theName" :environment="environmentName" v-on:exception-update="updateException"/> 
+    <attribute-modal v-if="objt.theEnvironmentProperties.length" ref="attributeDialog" :cognitiveAttribute="selectedAttribute" v-on:attribute-update="updateAttribute"/> 
     <reference-contribution-modal ref="rcDialog" :referenceContribution="selectedReferenceContribution" v-on:reference-contribution-update="updateReferenceContribution"/> 
     <p v-if="errors.length">
       <b>Please correct the following error(s):</b>
@@ -33,6 +34,7 @@ Authors: Shamal Faily
       </ul>
     </p>
     <b-form>
+    <b-form v-on:attribute-update="updateAttribute">
       <b-card no-body>
         <b-tabs card>
           <b-tab title="Summary" active>
@@ -238,6 +240,14 @@ export default {
         this.objt.theEnvironmentProperties[this.envPropIndex].thePostCond = value;
       }
     }
+    attributes : {
+      get : function() {
+        return this.objt.theEnvironmentProperties.length > 0 ? this.objt.theEnvironmentProperties[this.envPropIndex].theAttributes : ''
+      },
+      set : function(value) {
+        this.objt.theEnvironmentProperties[this.envPropIndex].theAttributes = value;
+      }
+    }
   },
   components : {
     DimensionModal : () => import('@/components/DimensionModal'),
@@ -292,6 +302,13 @@ export default {
           theDimensionValue : ''
         }
       },
+      selectedAttribute : {
+        update : false,
+        attribute : {
+          theName : '',
+          theRationale : '',
+        }
+      },
       selectedReferenceContribution : {
         update : false,
         referenceContribution : {
@@ -341,6 +358,10 @@ export default {
         if (envProps.thePostCond.length == 0) {
           this.errors.push('No postconditions set for environment ' + envProps.theEnvironmentName);
         }
+        if (envProps.theAttribute.length == 0) {
+          this.errors.push('No attributes set for environment ' + envProps.theEnvironmentName);
+        }
+        
       }
       if (!this.errors.length) {
         return true;
@@ -368,7 +389,8 @@ export default {
         theEnvironmentName : envName,
         theSteps : [],
         thePreCond : '',
-        thePostCond : ''
+        thePostCond : '',
+        theAttribute : ''
       });
     },
     addActor() {
@@ -426,6 +448,29 @@ export default {
     },
     deleteException(index) {
       this.objt.theEnvironmentProperties[this.envPropIndex].theSteps[this.theStepIndex].theExceptions.splice(index,1);
+    },
+    addAttribute() {
+      this.selectedAttribute['attribute'] = {theName : '',theRationale : ''};
+      this.selectedAttribute['update'] = false;
+      this.$refs.attributeDialog.show();  
+    },
+    viewAttribute(row) {
+      this.selectedAttribute['index'] = row.theIndex;
+      const excObjt = JSON.parse(JSON.stringify(this.objt.theEnvironmentProperties[this.envPropIndex].theSteps[this.theStepIndex].theExceptions[row.theIndex].theAttribute[row.theIndex]));
+      this.selectedAttribute['Attribute'] = excObjt;
+      this.selectedAttribute['update'] = true;
+      this.$refs.attributeDialog.show();  
+    },
+    updateAttribute : function(updAtt) {
+      if (updAtt.update) {
+        this.$set(this.objt.theEnvironmentProperties[this.envPropIndex].theSteps[this.theStepIndex].theExceptions,updExc.index,updExc.exception.theAttribute,updAtt.index,updAtt.attribute);
+      }
+      else {
+        this.objt.theEnvironmentProperties[this.envPropIndex].theSteps[this.theStepIndex].theExceptions.push(updExc.exception).theAttribute.push(updAtt.attribute);
+      }
+    },
+    deleteAttribute(index) {
+      this.objt.theEnvironmentProperties[this.envPropIndex].theSteps[this.theStepIndex].theExceptions.splice(index,1).theAttribute.splice(index,1);
     },
     generateObstacle(row) {
       if (this.objt.theEnvironmentProperties[this.envPropIndex].theSteps[this.theStepIndex].theExceptions[row.theIndex].theDimensionType == 'none') {
